@@ -26,6 +26,7 @@ using Emgu.CV.Features2D;
 using PID_Fill;
 using Emgu.CV.CvEnum;
 using System.Diagnostics;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace FirstStepMulti
 {
@@ -75,9 +76,30 @@ namespace FirstStepMulti
         int[] countimage = new int[6];
         ModbusClient modbusClient = new ModbusClient();
         PIDCaculater iDCaculater = new PIDCaculater(50);
+        DataTable dt = new DataTable();
+        DataTable dt2 = new DataTable();
         public Form1()
         {
             InitializeComponent();
+            chart1.Series.Add("Water Level");
+            dt.Columns.Add("T", typeof(int));
+            dt.Columns.Add("H", typeof(int));
+            chart1.Series["Water Level"].XValueMember = "T";
+            chart1.Series["Water Level"].YValueMembers = "H";
+            chart1.Series["Water Level"].IsValueShownAsLabel = false;
+            chart1.Series["Water Level"].BorderWidth = 3;
+            chart1.Series["Water Level"].ChartType = SeriesChartType.Line;
+            chart1.Series["Water Level"].Points.DataBind(dt.DefaultView, "T", "H", "");
+
+            chart2.Series.Add("Servo");
+            dt2.Columns.Add("T", typeof(int));
+            dt2.Columns.Add("P", typeof(int));
+            chart2.Series["Servo"].XValueMember = "T";
+            chart2.Series["Servo"].YValueMembers = "P";
+            chart2.Series["Servo"].IsValueShownAsLabel = false;
+            chart2.Series["Servo"].BorderWidth = 3;
+            chart2.Series["Servo"].ChartType = SeriesChartType.Line;
+            chart2.Series["Servo"].Points.DataBind(dt2.DefaultView, "T", "P", "");
 
             iDCaculater.Kp = 0.8;
             iDCaculater.Ki = 2;
@@ -173,11 +195,11 @@ namespace FirstStepMulti
         private Stopwatch stopwatch = new Stopwatch();
         private void M_BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            
+
             if (!m_BackgroundWorker.IsBusy)
             {
                 m_BackgroundWorker.RunWorkerAsync();
-                
+
             }
             MethodInvoker method1 = delegate { label11.Text = "******"; }; this.Invoke(method1);
         }
@@ -190,7 +212,7 @@ namespace FirstStepMulti
             {
                 e.Cancel = true;
                 Error_PLC = true;
-                MethodInvoker method = delegate { button3.Visible = true; };this.Invoke(method);
+                MethodInvoker method = delegate { button3.Visible = true; }; this.Invoke(method);
             }
             else
             {
@@ -207,8 +229,8 @@ namespace FirstStepMulti
                             MethodInvoker method = delegate { label11.Text = ex.Message; }; this.Invoke(method);
                             m_BackgroundWorker.CancelAsync();
                         }
-                        
-                        if (Found_line != true) 
+
+                        if (Found_line != true)
                         {
                             try
                             {
@@ -216,17 +238,18 @@ namespace FirstStepMulti
                                 if (M_get_max)
                                 {
                                     Get_max = true;
+
                                     modbusClient.WriteSingleCoil(8239, true);
-                                    MethodInvoker method = delegate { label2.Text = "Finding Line..."; }; this.Invoke(method);
+                                    MethodInvoker method = delegate { label2.Text = "Finding Line..."; if (pictureBox1.Image != null) pictureBox1.Image.Dispose(); }; this.Invoke(method);
                                     MethodInvoker method2 = delegate { label12.Text = "0.000 sec"; }; this.Invoke(method2);
                                 }
                             }
                             catch (Exception ex)
                             {
-                                MethodInvoker method = delegate { label11.Text = ex.Message; };this.Invoke(method);
+                                MethodInvoker method = delegate { label11.Text = ex.Message; }; this.Invoke(method);
                                 m_BackgroundWorker.CancelAsync();
                             }
-                           
+
                         }
                         if (M20[0] == true)
                         {
@@ -252,22 +275,22 @@ namespace FirstStepMulti
                             catch (Exception ex)
                             {
 
-                                MethodInvoker method = delegate { label11.Text = ex.Message; };this.Invoke(method);
+                                MethodInvoker method = delegate { label11.Text = ex.Message; }; this.Invoke(method);
                                 m_BackgroundWorker.CancelAsync();
                             }
-                           
+
 
                         }
-                        
+
                         if (M20[2] == true)
                         {
-                           
+
                             Ref_Line = 0;
                             Home_p = modbusClient.ReadHoldingRegisters(360, 1)[0];
                             iDCaculater.Possition_Max = Home_p + Range_max;
                             iDCaculater.Position_Min = Home_p + Range_min;
                             modbusClient.WriteSingleCoil(8214, false); //M22
-                            
+
 
                             iDCaculater.Possition_Output = (int)iDCaculater.Possition_Max;
                             MethodInvoker method = delegate
@@ -285,19 +308,37 @@ namespace FirstStepMulti
                         }
                         if (StopPID)
                         {
+                            MethodInvoker method3 = delegate
+                            {
+                                if (pictureBox1.Image != null) pictureBox1.Image.Dispose();
+                                var picture_temp = (Bitmap)TrackerImage.Bitmap.Clone();
+                                pictureBox1.Image = picture_temp;
+
+                                TrackerImage.Dispose();
+
+                            }; this.Invoke(method3);
                             Ref_Line = 0;
                             iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
                             modbusClient.WriteSingleCoil(8215, true); // M23
-                            if(iDCaculater.Started) iDCaculater.Stop_Caculate();
-                            MethodInvoker method = delegate 
+                            if (iDCaculater.Started) iDCaculater.Stop_Caculate();
+                            MethodInvoker method = delegate
                             {
                                 label2.Text = "Finished";
-                            };this.Invoke(method);
+                            }; this.Invoke(method);
                             StopPID = false;
                             Write_D260 = false;
                             stopwatch.Stop();
                             TimeSpan timeSpan = TimeSpan.FromMilliseconds(stopwatch.ElapsedMilliseconds);
-                            MethodInvoker method2 = delegate { label12.Text = timeSpan.ToString("ss\\.fff")+ " sec"; };this.Invoke(method2);
+                            MethodInvoker method2 = delegate
+                            {
+                                label12.Text = timeSpan.ToString("ss\\.fff") + " sec";
+                                dt.Rows.Clear();
+                                dt2.Rows.Clear();
+                                chart1.Series["Water Level"].Points.DataBind(dt.DefaultView, "T", "H", "");
+                                chart2.Series["Servo"].Points.DataBind(dt2.DefaultView, "T", "P", "");
+
+                            }; this.Invoke(method2);
+
                         }
                         MethodInvoker method1 = delegate { label11.Text = "Reading PLC"; }; this.Invoke(method1);
 
@@ -305,7 +346,7 @@ namespace FirstStepMulti
                 }
                 catch (Exception ex)
                 {
-                    MethodInvoker method = delegate { label11.Text = ex.InnerException.ToString(); };this.Invoke(method);
+                    MethodInvoker method = delegate { label11.Text = ex.InnerException.ToString(); }; this.Invoke(method);
                     m_BackgroundWorker.CancelAsync();
                 }
 
@@ -325,6 +366,8 @@ namespace FirstStepMulti
         private bool test_cam = false;
         private bool Found_line = false;
         private int Ref_Line = 0;
+        private int count = 0;
+        private Image<Bgr, byte> TrackerImage;
         private void CameraGrabberFrameCallback(
             IntPtr Grabber,
             IntPtr pFrameBuffer,
@@ -592,6 +635,31 @@ namespace FirstStepMulti
                     };
                     this.Invoke(method);
 
+                    if (Ref_Line != 0)
+                    {
+                        try
+                        {
+
+                            MethodInvoker method1 = delegate
+                            {
+                                if (dt.Rows.Count > 300) dt.Rows.Remove(dt.Rows[0]);
+                                dt.Rows.Add(count, max3 - Ref_Line);
+                                if (dt2.Rows.Count > 300) dt2.Rows.Remove(dt2.Rows[0]);
+                                dt2.Rows.Add(count, iDCaculater.Possition_Output);
+                                chart1.Series["Water Level"].Points.DataBind(dt.DefaultView, "T", "H", "");
+                                chart2.Series["Servo"].Points.DataBind(dt2.DefaultView, "T", "P", "");
+                                count++;
+                            }; this.Invoke(method1);
+
+                        }
+                        catch (Exception ex)
+                        {
+
+
+                        }
+
+                    }
+
                     if (Ref_Line == 0 && max3 - min <= 300 && Found_line && test_cam == false)
                     {
                         if (lastD260 - (max3 - min) < 50)
@@ -625,6 +693,8 @@ namespace FirstStepMulti
                         if (max3 - Ref_Line == iDCaculater.Water_Level_Target)
                         {
                             StopPID = true;
+                            CapFinish(ImgInput.Bitmap, iDCaculater.Water_Level_Target);
+
                             Found_line = false;
 
                             iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
@@ -637,6 +707,7 @@ namespace FirstStepMulti
                         else if (max3 - Ref_Line <= iDCaculater.Water_Level_Target + 3 && Ref_Line - min > 6)
                         {
                             StopPID = true;
+                            CapFinish(ImgInput.Bitmap, max3 - Ref_Line);
                             Found_line = false;
 
                             iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
@@ -652,6 +723,7 @@ namespace FirstStepMulti
                     else if (Ref_Line != 0 && max3 - Ref_Line <= 300 && max3 - Ref_Line <= iDCaculater.Water_Level_Target && Found_line && test_cam == false)
                     {
                         StopPID = true;
+                        CapFinish(ImgInput.Bitmap, max3 - Ref_Line);
                         Found_line = false;
                         D260 = (Int16)iDCaculater.Position_Min;
                         Write_D260 = true;
@@ -663,11 +735,27 @@ namespace FirstStepMulti
             }
             catch (Exception ex)
             {
-                MethodInvoker method = delegate { label11.Text = ex.InnerException.ToString(); };this.Invoke(method);
+                MethodInvoker method = delegate { label11.Text = ex.InnerException.ToString(); }; this.Invoke(method);
             }
-            
-        }
 
+        }
+        private void CapFinish(Bitmap bitmap, double value)
+        {
+            TrackerImage = new Image<Bgr, byte>(bitmap);
+            string text = value.ToString();
+
+            // Set the font type, scale, color, and thickness
+            FontFace font = FontFace.HersheySimplex;
+            double fontScale = 1.0;
+            MCvScalar color = new MCvScalar(0, 0, 255); // Red color
+            int thickness = 2;
+
+            // Set the position where the text will be drawn
+            Point position = new Point(50, 50);
+
+            // Draw the text on the image
+            CvInvoke.PutText(TrackerImage, text, position, font, fontScale, color, thickness, LineType.AntiAlias);
+        }
         private void CameraGrabberSaveImageComplete(
             IntPtr Grabber,
             IntPtr Image,
@@ -978,11 +1066,11 @@ namespace FirstStepMulti
 
                 }; this.Invoke(method);
             }
-            catch (Exception )
+            catch (Exception)
             {
 
             }
-           
+
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
@@ -1003,7 +1091,7 @@ namespace FirstStepMulti
             {
 
             }
-           
+
         }
 
         private void buttonSnap5_Click(object sender, EventArgs e)
