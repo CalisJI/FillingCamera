@@ -91,7 +91,9 @@ namespace FirstStepMulti
             chart1.Series["Water Level"].ChartType = SeriesChartType.Line;
             chart1.Series["Water Level"].Points.DataBind(dt.DefaultView, "T", "H", "");
 
+            ChartArea chartArea = new ChartArea("ChartArea");
             chart2.Series.Add("Servo");
+
             dt2.Columns.Add("T", typeof(int));
             dt2.Columns.Add("P", typeof(int));
             chart2.Series["Servo"].XValueMember = "T";
@@ -100,12 +102,11 @@ namespace FirstStepMulti
             chart2.Series["Servo"].BorderWidth = 3;
             chart2.Series["Servo"].ChartType = SeriesChartType.Line;
             chart2.Series["Servo"].Points.DataBind(dt2.DefaultView, "T", "P", "");
-
-            iDCaculater.Kp = 0.8;
-            iDCaculater.Ki = 2;
+            iDCaculater.Kp = 0.5;
+            iDCaculater.Ki = 4;
             iDCaculater.Kd = 0;
             iDCaculater.Water_Level_Max = 300;
-            iDCaculater.Water_Level_Min = 22;
+            iDCaculater.Water_Level_Min = 23;
             iDCaculater.Possition_Max = Convert.ToDouble(textBox1.Text);
             iDCaculater.Position_Min = Convert.ToDouble(textBox2.Text);
             iDCaculater.Water_Level_Target = Convert.ToDouble(textBox3.Text);
@@ -201,7 +202,7 @@ namespace FirstStepMulti
                 m_BackgroundWorker.RunWorkerAsync();
 
             }
-            MethodInvoker method1 = delegate { label11.Text = "******"; }; this.Invoke(method1);
+            //MethodInvoker method1 = delegate { label11.Text = "******"; }; this.Invoke(method1);
         }
         private bool M22 = false;
         private bool Get_max = false;
@@ -240,7 +241,13 @@ namespace FirstStepMulti
                                     Get_max = true;
 
                                     modbusClient.WriteSingleCoil(8239, true);
-                                    MethodInvoker method = delegate { label2.Text = "Finding Line..."; if (pictureBox1.Image != null) pictureBox1.Image.Dispose(); }; this.Invoke(method);
+                                    MethodInvoker method = delegate { label2.Text = "Finding Line...";
+                                        if (pictureBox1.Image != null) pictureBox1.Image.Dispose();
+                                        dt.Rows.Clear();
+                                        dt2.Rows.Clear();
+                                        chart1.Series["Water Level"].Points.DataBind(dt.DefaultView, "T", "H", "");
+                                        chart2.Series["Servo"].Points.DataBind(dt2.DefaultView, "T", "P", "");
+                                    }; this.Invoke(method);
                                     MethodInvoker method2 = delegate { label12.Text = "0.000 sec"; }; this.Invoke(method2);
                                 }
                             }
@@ -298,6 +305,8 @@ namespace FirstStepMulti
                                 textBox5.Text = Home_p.ToString();
                                 textBox6.Text = iDCaculater.Possition_Max.ToString();
                                 textBox7.Text = iDCaculater.Position_Min.ToString();
+                                chart2.ChartAreas[0].AxisY.Minimum = iDCaculater.Position_Min;
+
 
                             }; this.Invoke(method);
                         }
@@ -308,15 +317,7 @@ namespace FirstStepMulti
                         }
                         if (StopPID)
                         {
-                            MethodInvoker method3 = delegate
-                            {
-                                if (pictureBox1.Image != null) pictureBox1.Image.Dispose();
-                                var picture_temp = (Bitmap)TrackerImage.Bitmap.Clone();
-                                pictureBox1.Image = picture_temp;
-
-                                TrackerImage.Dispose();
-
-                            }; this.Invoke(method3);
+                           
                             Ref_Line = 0;
                             iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
                             modbusClient.WriteSingleCoil(8215, true); // M23
@@ -332,10 +333,7 @@ namespace FirstStepMulti
                             MethodInvoker method2 = delegate
                             {
                                 label12.Text = timeSpan.ToString("ss\\.fff") + " sec";
-                                dt.Rows.Clear();
-                                dt2.Rows.Clear();
-                                chart1.Series["Water Level"].Points.DataBind(dt.DefaultView, "T", "H", "");
-                                chart2.Series["Servo"].Points.DataBind(dt2.DefaultView, "T", "P", "");
+                                
 
                             }; this.Invoke(method2);
 
@@ -346,8 +344,9 @@ namespace FirstStepMulti
                 }
                 catch (Exception ex)
                 {
-                    MethodInvoker method = delegate { label11.Text = ex.InnerException.ToString(); }; this.Invoke(method);
-                    m_BackgroundWorker.CancelAsync();
+                    //MethodInvoker method = delegate { label11.Text = ex.InnerException.ToString(); }; this.Invoke(method);
+                    //m_BackgroundWorker.CancelAsync();
+                    Console.WriteLine(ex.Message);
                 }
 
             }
@@ -379,7 +378,7 @@ namespace FirstStepMulti
                 image = (Bitmap)MvApi.CSharpImageFromFrame(pFrameBuffer, ref pFrameHead);
                 ImgInput = new Image<Bgr, byte>(image);
                 ImgInput2 = new Image<Bgr, byte>(image);
-                roi = new Rectangle(750, 300, 300, 350);
+                roi = new Rectangle(750, 300, 300, 420);
                 ImgInput2.ROI = roi;
                 ImgRoi = ImgInput2.Copy();
                 ImgInput.Draw(roi, new Bgr(255, 0, 0), 4);
@@ -398,10 +397,10 @@ namespace FirstStepMulti
                 Mat gray = new Mat();
                 CvInvoke.CvtColor(blurredImage, gray, ColorConversion.Bgr2Gray);
                 Mat binary = new Mat();
-                CvInvoke.Threshold(gray, binary, 100, 255, ThresholdType.Binary | ThresholdType.Otsu);
+                CvInvoke.Threshold(gray, binary, 0, 50, ThresholdType.Binary | ThresholdType.Otsu);
                 Mat edges = new Mat();
                 //Cv2.Canny(binary, edges, Convert.ToInt32(textBox3.Text), Convert.ToInt32(textBox4.Text));
-                CvInvoke.Canny(binary, edges, 200, 255);
+                CvInvoke.Canny(binary, edges, 0, 100);
 
                 Mat kernel = CvInvoke.GetStructuringElement(ElementShape.Cross, new Size(5, 5), new Point(-1, -1));
                 Mat dilated = new Mat();
@@ -424,7 +423,9 @@ namespace FirstStepMulti
                     }
 
                 }
-                dem = dem1 = max1 = max2 = max3 = 0;
+                //dem = dem1 = max1 = max2 = max3 = 0;
+                dem = dem1 = max1 = max3 = 0;
+
                 bool tesst = true;
                 for (int k = 0; k < _imgCanny.Width; k++)//backup _i
                 {
@@ -457,14 +458,10 @@ namespace FirstStepMulti
 
                 if (testmin == false)
                 {
-                    min = toadoy[0];
-                    for (int i = 0; i < dem; i++)
+
+                    if (toadoy.Length > 0)
                     {
-                        if (toadoy[i] < min)
-                        {
-                            min = toadoy[i];
-                            minx = toadox[i];
-                        }
+                        min = toadoy.Where(num => num > 5).Min();
 
 
                     }
@@ -534,7 +531,7 @@ namespace FirstStepMulti
                         }
 
                     }
-                    if (min < roi.Height / 2 && Ref_Line == 0 && Get_max)
+                    if (min < roi.Height / 2 && Ref_Line == 0 && Get_max && min !=0)
                     {
 
                         Ref_Line = min;
@@ -556,44 +553,126 @@ namespace FirstStepMulti
 
                         }
                     }
-                    for (int i = 0; i < dem1; i++)
+                    //for (int i = 0; i < dem1; i++)
+                    //{
+                    //    max = toadoy1[i];
+                    //    if (toadox1[i] == minx )
+                    //    {
+                    //        for (int j = i - 1; j <= i + 1; j++)
+                    //        {
+                    //            if (j <= dem && max == toadoy1[j])
+                    //            {
+                    //                max2++;
+                    //                if (max2 > max1)
+                    //                {
+                    //                    max3 = toadoy1[j];
+                    //                    max1 = max2;
+                    //                }
+                    //            }
+                    //            else 
+                    //            {
+                    //                max3 = (int)toadoy1.Average();
+                    //            }
+
+                    //        }
+                    //        max2 = 0;
+                    //        break;
+                    //    }
+
+                    //}
+                    try
                     {
-                        max = toadoy1[i];
-                        //if (toadox1[i] == minx)
-                        //{
-                        //    for (int j = i - 1; j <= i + 1; j++)
-                        //    {
-                        //        if (max == toadoy1[j])
-                        //        {
-                        //            max2++;
-                        //            if (max2 > max1)
-                        //            {
-                        //                max3 = toadoy1[j];
-                        //                max1 = max2;
-                        //            }
-                        //        }
-                        //    }
-                        //    max2 = 0;
-                        //    break;
-                        //}
-                        if (Math.Abs(toadox1[i] - minx) < 3)
+                        if (toadoy1.Length > 0) 
                         {
-                            for (int j = i - 3; j <= i + 3; j++)
+                            int deviationThreshold = 10;
+                            double average = 0;
+                            if (Ref_Line != 0) 
                             {
-                                if (max == toadoy1[j])
+                               average = toadoy1.Where(num => num >= Ref_Line).Average();
+                            }
+                            else
+                            {
+                                average = toadoy1.Where(num => num > min).Average();
+                            }
+                            //int[] filteredElements = toadoy1.Where(num => Math.Abs(num - average) <= deviationThreshold).ToArray();
+
+                            List<int> currentSequence = new List<int>();
+                            List<List<int>> filteredGroups = new List<List<int>>();
+
+                            foreach (int num in toadoy1)
+                            {
+                                if (currentSequence.Count > 0 && Math.Abs(num - currentSequence.Last()) <= deviationThreshold && num < average)
                                 {
-                                    max2++;
-                                    if (max2 > max1)
+                                    currentSequence.Add(num);
+                                }
+                                else
+                                {
+                                    if (currentSequence.Count > 1)
                                     {
-                                        max3 = toadoy1[j];
-                                        max1 = max2;
+                                        filteredGroups.Add(currentSequence);
                                     }
+                                    currentSequence = new List<int> { num };
                                 }
                             }
-                            max2 = 0;
-                            break;
+
+                            if (currentSequence.Count > 1)
+                            {
+                                filteredGroups.Add(currentSequence);
+                            }
+
+
+
+
+                            if (filteredGroups.Count > 0) 
+                            {
+                                var groupWithMaxCount = filteredGroups.Where(group => group.Count != 700).OrderBy(group => group.Count).LastOrDefault();
+
+                                if (groupWithMaxCount != null)
+                                {
+                                    double targetAverage = groupWithMaxCount.Max();
+                                    max3 = (int)targetAverage;
+                                    max2 = max3;
+                                    Console.WriteLine(max3);
+                                    if (Ref_Line != 0)
+                                    {
+                                        MethodInvoker method1 = delegate
+                                        {
+                                            label13.Text = string.Format("max:{0}-Ref:{1}-min:{2}", max3.ToString(), Ref_Line.ToString(), min.ToString());
+                                            label14.Text = string.Format("Edge Group:{0}", filteredGroups.Count);
+                                        }; this.Invoke(method1);
+
+                                    }
+                                    else
+                                    {
+                                        MethodInvoker method1 = delegate
+                                        {
+                                            label13.Text = string.Format("max:{0}-min:{1}-high:{2}", max3.ToString(), min.ToString(), (max3 - min).ToString());
+                                            label14.Text = string.Format("Edge Group:{0}", filteredGroups.Count);
+
+                                        }; this.Invoke(method1);
+
+                                    }
+                                }
+                                else 
+                                {
+                                    max3 = max2;
+                                }
+                               
+                            }
+
+                           
                         }
+                        else 
+                        {
+                            max3 = max2;
+                        }
+                       
                     }
+                    catch (Exception ex )
+                    {
+                        Console.WriteLine("AVR  "+ ex.Message);
+                    }
+                    if (max3 == 0) max3 = max2;
                     //LineSegment2D line2 = new LineSegment2D(new Point(0, max3), new Point(800, max3));
                     //_imgCanny.Draw(line2, new Gray(255), 5);
 
@@ -605,15 +684,19 @@ namespace FirstStepMulti
                     if (Ref_Line != 0)
                     {
                         LineSegment2D line_lim = new LineSegment2D(new Point(roi.X, Ref_Line + 300), new Point(roi.X + roi.Width, Ref_Line + 300));
-                        ImgInput.Draw(line_lim, new Bgr(0, 255, 0), 3);
+                        ImgInput.Draw(line_lim, new Bgr(0, 255, 0), 6);
+                        LineSegment2D line_lim1 = new LineSegment2D(new Point(roi.X, max3 + 300), new Point(roi.X + roi.Width, max3 + 300));
+                        ImgInput.Draw(line_lim1, new Bgr(255, 0, 255), 8);
                         LineSegment2D line3 = new LineSegment2D(new Point(900, Ref_Line + 300), new Point(900, max3 + 300));
-                        ImgInput.Draw(line3, new Bgr(0, 255, 255), 2);
+                        ImgInput.Draw(line3, new Bgr(0, 255, 255), 4);
 
                     }
                     else
                     {
                         LineSegment2D line3 = new LineSegment2D(new Point(900, min + 300), new Point(900, max3 + 300));
                         ImgInput.Draw(line3, new Bgr(0, 0, 255), 2);
+                        LineSegment2D line_lim1 = new LineSegment2D(new Point(roi.X, max3 + 300), new Point(roi.X + roi.Width, max3 + 300));
+                        ImgInput.Draw(line_lim1, new Bgr(255, 0, 255), 8);
                     }
 
 
@@ -626,39 +709,23 @@ namespace FirstStepMulti
                         if (Ref_Line != 0)
                         {
                             label1.Text = (max3 - Ref_Line).ToString();
+                            if (dt.Rows.Count > 300) dt.Rows.Remove(dt.Rows[0]);
+                            dt.Rows.Add(count, max3 - Ref_Line);
+                            if (dt2.Rows.Count > 300) dt2.Rows.Remove(dt2.Rows[0]);
+                            dt2.Rows.Add(count, iDCaculater.Possition_Output);
+                            chart1.Series["Water Level"].Points.DataBind(dt.DefaultView, "T", "H", "");
+                            chart2.Series["Servo"].Points.DataBind(dt2.DefaultView, "T", "P", "");
+                            count++;
                         }
                         else
                         {
                             label1.Text = (max3 - min).ToString();
 
                         }
+                        //label1.Text = (max3 - min).ToString();
+
                     };
                     this.Invoke(method);
-
-                    if (Ref_Line != 0)
-                    {
-                        try
-                        {
-
-                            MethodInvoker method1 = delegate
-                            {
-                                if (dt.Rows.Count > 300) dt.Rows.Remove(dt.Rows[0]);
-                                dt.Rows.Add(count, max3 - Ref_Line);
-                                if (dt2.Rows.Count > 300) dt2.Rows.Remove(dt2.Rows[0]);
-                                dt2.Rows.Add(count, iDCaculater.Possition_Output);
-                                chart1.Series["Water Level"].Points.DataBind(dt.DefaultView, "T", "H", "");
-                                chart2.Series["Servo"].Points.DataBind(dt2.DefaultView, "T", "P", "");
-                                count++;
-                            }; this.Invoke(method1);
-
-                        }
-                        catch (Exception ex)
-                        {
-
-
-                        }
-
-                    }
 
                     if (Ref_Line == 0 && max3 - min <= 300 && Found_line && test_cam == false)
                     {
@@ -693,7 +760,7 @@ namespace FirstStepMulti
                         if (max3 - Ref_Line == iDCaculater.Water_Level_Target)
                         {
                             StopPID = true;
-                            CapFinish(ImgInput.Bitmap, iDCaculater.Water_Level_Target);
+                            CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, iDCaculater.Water_Level_Target,Ref_Line);
 
                             Found_line = false;
 
@@ -704,10 +771,23 @@ namespace FirstStepMulti
                                 label2.Text = "0";
                             }; this.Invoke(method);
                         }
-                        else if (max3 - Ref_Line <= iDCaculater.Water_Level_Target + 3 && Ref_Line - min > 6)
+                        else if (max3 - Ref_Line <= iDCaculater.Water_Level_Target + 2 && max3 - Ref_Line>iDCaculater.Water_Level_Target && Ref_Line - min >= 5)
                         {
                             StopPID = true;
-                            CapFinish(ImgInput.Bitmap, max3 - Ref_Line);
+                            CapFinish(ImgInput.Bitmap,_imgCanny.Bitmap, max3 - Ref_Line,Ref_Line);
+                            Found_line = false;
+
+                            iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
+                            //find_line = false;
+                            MethodInvoker method1 = delegate
+                            {
+                                label2.Text = "0";
+                            }; this.Invoke(method);
+                        }
+                       else if(max3 - Ref_Line <= iDCaculater.Water_Level_Target + 10 && max3 - Ref_Line > iDCaculater.Water_Level_Target && Ref_Line - min >= 10) 
+                        {
+                            StopPID = true;
+                            CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line, Ref_Line);
                             Found_line = false;
 
                             iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
@@ -723,7 +803,7 @@ namespace FirstStepMulti
                     else if (Ref_Line != 0 && max3 - Ref_Line <= 300 && max3 - Ref_Line <= iDCaculater.Water_Level_Target && Found_line && test_cam == false)
                     {
                         StopPID = true;
-                        CapFinish(ImgInput.Bitmap, max3 - Ref_Line);
+                        CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line,Ref_Line);
                         Found_line = false;
                         D260 = (Int16)iDCaculater.Position_Min;
                         Write_D260 = true;
@@ -735,26 +815,54 @@ namespace FirstStepMulti
             }
             catch (Exception ex)
             {
-                MethodInvoker method = delegate { label11.Text = ex.InnerException.ToString(); }; this.Invoke(method);
+                //MethodInvoker method = delegate { label11.Text = ex.InnerException.ToString(); }; this.Invoke(method);
+                Console.WriteLine(ex.Message);
             }
 
         }
-        private void CapFinish(Bitmap bitmap, double value)
+        private void CapFinish(Bitmap bitmap,Bitmap bitmap1, double value,int Ref_L)
         {
             TrackerImage = new Image<Bgr, byte>(bitmap);
+            var TrackerImage1 = new Image<Bgr, byte>(bitmap1);
             string text = value.ToString();
 
             // Set the font type, scale, color, and thickness
             FontFace font = FontFace.HersheySimplex;
-            double fontScale = 1.0;
-            MCvScalar color = new MCvScalar(0, 0, 255); // Red color
-            int thickness = 2;
+            double fontScale = 4.0;
+            MCvScalar color = new MCvScalar(0, 200, 255); // Red color
+            int thickness = 8;
 
             // Set the position where the text will be drawn
-            Point position = new Point(50, 50);
+            Point position = new Point(150, 150);
+            Point position1 = new Point(150, 250);
+            Point position2 = new Point(150, 350);
 
             // Draw the text on the image
             CvInvoke.PutText(TrackerImage, text, position, font, fontScale, color, thickness, LineType.AntiAlias);
+            CvInvoke.PutText(TrackerImage, Ref_L.ToString(), position1, font, fontScale, color, thickness, LineType.AntiAlias);
+            CvInvoke.PutText(TrackerImage, min.ToString(), position2, font, fontScale, color, thickness, LineType.AntiAlias);
+            try
+            {
+                MethodInvoker method3 = delegate
+                {
+                    if (pictureBox1.Image != null) pictureBox1.Image.Dispose();
+                    var picture_temp = (Bitmap)TrackerImage.Bitmap.Clone();
+                    pictureBox1.Image = picture_temp;
+                    if (pictureBox2.Image != null) pictureBox2.Image.Dispose();
+                    var picture_temp1 = (Bitmap)TrackerImage1.Bitmap.Clone();
+                    pictureBox2.Image = picture_temp1;
+
+                    TrackerImage.Dispose();
+                    TrackerImage1.Dispose();
+
+                }; this.Invoke(method3);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+
+            }
+           
         }
         private void CameraGrabberSaveImageComplete(
             IntPtr Grabber,
@@ -1084,6 +1192,7 @@ namespace FirstStepMulti
                     //textBox5.Text = Home_p.ToString();
                     //textBox6.Text = iDCaculater.Possition_Max.ToString();
                     textBox7.Text = iDCaculater.Position_Min.ToString();
+                    chart2.ChartAreas[0].AxisY.Minimum = iDCaculater.Position_Min;
 
                 }; this.Invoke(method);
             }
@@ -1091,6 +1200,16 @@ namespace FirstStepMulti
             {
 
             }
+
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label13_Click(object sender, EventArgs e)
+        {
 
         }
 
