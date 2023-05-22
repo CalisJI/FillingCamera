@@ -1,0 +1,63 @@
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.AssemblyReference.cache
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.SuggestedBindingRedirects.cache
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.Properties.Resources.resources
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.GenerateResource.cache
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.CoreCompileInputs.cache
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\bin\Debug\muticameraethernet.exe.config
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\bin\Debug\muticameraethernet.exe
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\bin\Debug\muticameraethernet.pdb
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\bin\Debug\MVSDK.dll
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.CopyComplete
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.exe
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.pdb
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\obj\Debug\FirstStepMulti.Form1.resources
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\bin\Debug\Emgu.CV.UI.GL.dll
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\bin\Debug\Emgu.CV.UI.dll
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\bin\Debug\Emgu.CV.World.dll
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\bin\Debug\OpenTK.dll
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\bin\Debug\OpenTK.GLControl.dll
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\bin\Debug\ZedGraph.dll
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\bin\Debug\EasyModbus.dll
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\bin\Debug\PID_Fill.dll
+C:\Users\admin\Source\Repos\muticameraethernet\muticameraethernet\bin\Debug\PID_Fill.pdb
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\bin\Debug\muticameraethernet.exe.config
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\bin\Debug\muticameraethernet.exe
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\bin\Debug\muticameraethernet.pdb
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\bin\Debug\EasyModbus.dll
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\bin\Debug\Emgu.CV.UI.GL.dll
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\bin\Debug\Emgu.CV.UI.dll
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\bin\Debug\Emgu.CV.World.dll
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\bin\Debug\OpenTK.dll
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\bin\Debug\OpenTK.GLControl.dll
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\bin\Debug\ZedGraph.dll
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\bin\Debug\PID_Fill.pdb
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.AssemblyReference.cache
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.SuggestedBindingRedirects.cache
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\obj\Debug\FirstStepMulti.Form1.resources
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.Properties.Resources.resources
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.GenerateResource.cache
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.CoreCompileInputs.cache
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.CopyComplete
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.exe
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.pdb
+F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\bin\Debug\PID_Fill.dll
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\muticameraethernet.exe.config
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\muticameraethernet.exe
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\muticameraethernet.pdb
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\EasyModbus.dll
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\Emgu.CV.UI.GL.dll
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\Emgu.CV.UI.dll
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\Emgu.CV.World.dll
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\OpenTK.dll
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\OpenTK.GLControl.dll
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\ZedGraph.dll
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\PID_Fill.pdb
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.AssemblyReference.cache
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.SuggestedBindingRedirects.cache
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\obj\Debug\FirstStepMulti.Form1.resources
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.Properties.Resources.resources
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.GenerateResource.cache
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.CoreCompileInputs.cache
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.CopyComplete
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.exe
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.pdb
