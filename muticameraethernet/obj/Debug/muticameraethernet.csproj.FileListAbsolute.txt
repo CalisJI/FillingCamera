@@ -51,7 +51,6 @@ F:\VISUAL PROJECT\CSharp\Winfom\muticameraethernet\muticameraethernet\bin\Debug\
 \\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\OpenTK.dll
 \\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\OpenTK.GLControl.dll
 \\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\ZedGraph.dll
-\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\PID_Fill.pdb
 \\192.168.1.100\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.AssemblyReference.cache
 \\192.168.1.100\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.SuggestedBindingRedirects.cache
 \\192.168.1.100\New folder\muticameraethernet\muticameraethernet\obj\Debug\FirstStepMulti.Form1.resources
@@ -80,3 +79,5 @@ C:\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet
 C:\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.csproj.CopyComplete
 C:\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.exe
 C:\New folder\muticameraethernet\muticameraethernet\obj\Debug\muticameraethernet.pdb
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\PID_Fill.dll
+\\192.168.1.100\New folder\muticameraethernet\muticameraethernet\bin\Debug\PID_Fill.pdb
