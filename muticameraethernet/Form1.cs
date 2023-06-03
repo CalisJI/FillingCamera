@@ -27,6 +27,7 @@ using PID_Fill;
 using Emgu.CV.CvEnum;
 using System.Diagnostics;
 using System.Windows.Forms.DataVisualization.Charting;
+using Application = System.Windows.Forms.Application;
 
 namespace FirstStepMulti
 {
@@ -78,9 +79,20 @@ namespace FirstStepMulti
         PIDCaculater iDCaculater = new PIDCaculater(50);
         DataTable dt = new DataTable();
         DataTable dt2 = new DataTable();
+        private static string RootFolder = Application.StartupPath+@"\Data1";
+        private static string RootFolder1 = Application.StartupPath + @"\Data2";
+
         public Form1()
         {
             InitializeComponent();
+            if (!Directory.Exists(RootFolder)) 
+            {
+                Directory.CreateDirectory(RootFolder);
+            }
+            if (!Directory.Exists(RootFolder1))
+            {
+                Directory.CreateDirectory(RootFolder1);
+            }
             chart1.Series.Add("Water Level");
             dt.Columns.Add("T", typeof(int));
             dt.Columns.Add("H", typeof(int));
@@ -791,7 +803,7 @@ namespace FirstStepMulti
                         D260 = (Int16)iDCaculater.Possition_Output;
                         lastD260 = max3 - max1;
                         Write_D260 = true;
-                        if (max3 - Ref_Line == iDCaculater.Water_Level_Target)
+                        if (max3 - Ref_Line == iDCaculater.Water_Level_Target && Ref_Line - min <= 3)
                         {
                             StopPID = true;
                             CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, iDCaculater.Water_Level_Target,Ref_Line,"OK");
@@ -805,21 +817,21 @@ namespace FirstStepMulti
                                 label2.Text = "0";
                             }; this.Invoke(method);
                         }
-                        else if (max3 - Ref_Line <= iDCaculater.Water_Level_Target + 2 && max3 - Ref_Line>iDCaculater.Water_Level_Target && Ref_Line - min >= 5)
-                        {
-                            StopPID = true;
-                            CapFinish(ImgInput.Bitmap,_imgCanny.Bitmap, max3 - Ref_Line,Ref_Line, "R-M >= 5");
-                            Found_line = false;
-                            D260 = (Int16)iDCaculater.Position_Min;
+                        //else if (max3 - Ref_Line <= iDCaculater.Water_Level_Target + 2 && max3 - Ref_Line > iDCaculater.Water_Level_Target && Ref_Line - min >= 5)
+                        //{
+                        //    StopPID = true;
+                        //    CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line, Ref_Line, "R-M >= 5");
+                        //    Found_line = false;
+                        //    D260 = (Int16)iDCaculater.Position_Min;
 
-                            iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
-                            //find_line = false;
-                            MethodInvoker method1 = delegate
-                            {
-                                label2.Text = "0";
-                            }; this.Invoke(method);
-                        }
-                       else if(max3 - Ref_Line <= iDCaculater.Water_Level_Target + 10 && max3 - Ref_Line > iDCaculater.Water_Level_Target && Ref_Line - min >= 10) 
+                        //    iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
+                        //    //find_line = false;
+                        //    MethodInvoker method1 = delegate
+                        //    {
+                        //        label2.Text = "0";
+                        //    }; this.Invoke(method);
+                        //}
+                        else if(max3 - Ref_Line <= iDCaculater.Water_Level_Target + 15 && Ref_Line - min >= 10) 
                         {
                             StopPID = true;
                             CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line, Ref_Line,"R-M>10");
@@ -833,23 +845,37 @@ namespace FirstStepMulti
                                 label2.Text = "0";
                             }; this.Invoke(method);
                         }
+                        else if (max3 - Ref_Line <= iDCaculater.Water_Level_Target + 35 && Ref_Line - min >= 15)
+                        {
+                            StopPID = true;
+                            CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line, Ref_Line, "R-M>15");
+                            Found_line = false;
+                            D260 = (Int16)iDCaculater.Position_Min;
+
+                            iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
+                            //find_line = false;
+                            MethodInvoker method1 = delegate
+                            {
+                                label2.Text = "0";
+                            }; this.Invoke(method);
+                        }
                         MethodInvoker invoker = delegate { label2.Text = D260.ToString(); }; this.Invoke(invoker);
 
                     }
-                    else if (Ref_Line != 0 && max3 - Ref_Line <= 300 && max3 - Ref_Line <= iDCaculater.Water_Level_Target && Found_line && test_cam == false)
-                    {
-                        StopPID = true;
-                        CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line,Ref_Line,"<Target");
-                        Found_line = false;
-                        D260 = (Int16)iDCaculater.Position_Min;
-                        Write_D260 = true;
-                        iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
+                    //else if (Ref_Line != 0 && max3 - Ref_Line <= 300 && max3 - Ref_Line <= iDCaculater.Water_Level_Target && Found_line && test_cam == false)
+                    //{
+                    //    StopPID = true;
+                    //    CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line,Ref_Line,"<Target");
+                    //    Found_line = false;
+                    //    D260 = (Int16)iDCaculater.Position_Min;
+                    //    Write_D260 = true;
+                    //    iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
 
-                    }
-                    else if (Ref_Line != 0 && max3 - Ref_Line <= 300 && Aprox && Ref_Line-min>=10 && Found_line && test_cam == false)
+                    //}
+                    else if (Ref_Line != 0 && max3 - Ref_Line <= 300 && Aprox && Ref_Line - min >= 10 && Found_line && test_cam == false)
                     {
                         StopPID = true;
-                        CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line, Ref_Line,"NG");
+                        CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line, Ref_Line, "NG");
                         Found_line = false;
                         D260 = (Int16)iDCaculater.Position_Min;
                         Write_D260 = true;
@@ -858,7 +884,7 @@ namespace FirstStepMulti
                         count_check = 0;
 
                     }
-                    
+
                 }
             }
             catch (Exception ex)
@@ -886,7 +912,7 @@ namespace FirstStepMulti
             Point position2 = new Point(150, 350);
             Point position3 = new Point(150, 450);
 
-
+            string name = DateTime.Now.ToString("yyyy MM dd HH mm ss").Replace(" ", "");
             // Draw the text on the image
             CvInvoke.PutText(TrackerImage, text, position, font, fontScale, color, thickness, LineType.AntiAlias);
             CvInvoke.PutText(TrackerImage, Ref_L.ToString(), position1, font, fontScale, color, thickness, LineType.AntiAlias);
@@ -902,10 +928,13 @@ namespace FirstStepMulti
                     if (pictureBox1.Image != null) pictureBox1.Image.Dispose();
                     var picture_temp = (Bitmap)TrackerImage.Bitmap.Clone();
                     pictureBox1.Image = picture_temp;
+                    
                     if (pictureBox2.Image != null) pictureBox2.Image.Dispose();
                     var picture_temp1 = (Bitmap)TrackerImage1.Bitmap.Clone();
                     pictureBox2.Image = picture_temp1;
 
+                    picture_temp.Save(RootFolder + @"\IMG" + name + ".jpg");
+                    picture_temp1.Save(RootFolder1 + @"\IMG" + name + ".jpg");
                     TrackerImage.Dispose();
                     TrackerImage1.Dispose();
 
