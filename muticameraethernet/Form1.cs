@@ -44,6 +44,7 @@ namespace FirstStepMulti
         double perimeter;
         VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint();
         Rectangle roi;
+        Rectangle roi1;
 
         Mat m = new Mat();
         int dem, dem1;
@@ -252,7 +253,7 @@ namespace FirstStepMulti
                                 {
                                     Get_max = true;
 
-                                    modbusClient.WriteSingleCoil(8239, true);
+                                    modbusClient.WriteSingleCoil(8239, true); //M47
                                     MethodInvoker method = delegate { label2.Text = "Finding Line...";
                                         if (pictureBox1.Image != null) pictureBox1.Image.Dispose();
                                         dt.Rows.Clear();
@@ -327,6 +328,41 @@ namespace FirstStepMulti
                             modbusClient.WriteSingleRegister(260, (Int16)D260);
 
                         }
+                        if (Ref_Line != 0) 
+                        {
+                           bool rs = modbusClient.ReadCoils(8218, 1)[0];
+                            if (rs) 
+                            {
+                                Ref_Line = 0;
+                                if (iDCaculater.Started) iDCaculater.Stop_Caculate();
+                                StopPID = false;
+                                Write_D260 = false;
+                                iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
+                                Home_p = modbusClient.ReadHoldingRegisters(360, 1)[0];
+                                iDCaculater.Possition_Max = Home_p + Range_max;
+                                iDCaculater.Position_Min = Home_p + Range_min;
+                                modbusClient.WriteSingleCoil(8214, false); //M22
+
+
+                                iDCaculater.Possition_Output = (int)iDCaculater.Possition_Max;
+                                MethodInvoker method = delegate
+                                {
+                                    textBox5.Text = Home_p.ToString();
+                                    textBox6.Text = iDCaculater.Possition_Max.ToString();
+                                    textBox7.Text = iDCaculater.Position_Min.ToString();
+                                    chart2.ChartAreas[0].AxisY.Minimum = iDCaculater.Position_Min;
+
+                                    if (pictureBox1.Image != null) pictureBox1.Image.Dispose();
+                                    dt.Rows.Clear();
+                                    dt2.Rows.Clear();
+                                    chart1.Series["Water Level"].Points.DataBind(dt.DefaultView, "T", "H", "");
+                                    chart2.Series["Servo"].Points.DataBind(dt2.DefaultView, "T", "P", "");
+
+                                }; this.Invoke(method);
+                              
+                                stopwatch.Stop();
+                            }
+                        }
                         if (StopPID)
                         {
                            
@@ -394,9 +430,13 @@ namespace FirstStepMulti
                 ImgInput = new Image<Bgr, byte>(image);
                 ImgInput2 = new Image<Bgr, byte>(image);
                 roi = new Rectangle(740, 300, 320, 420);
+                roi1 = new Rectangle(50,0,220,50);
+                var roi2 = new Rectangle(roi.X + roi1.X, roi.Y + roi1.Y, roi1.Width, roi1.Height);
                 ImgInput2.ROI = roi;
+                
                 ImgRoi = ImgInput2.Copy();
                 ImgInput.Draw(roi, new Bgr(255, 0, 0), 4);
+                ImgInput.Draw(roi2, new Bgr(100, 0, 150), 4);
                 //_imgCanny = new Image<Gray, byte>(ImgRoi.Width, ImgRoi.Height, new Gray(0));
                 //_imgCanny = new Image<Bgr, byte>(ImgRoi.Width, ImgRoi.Height,new Bgr(255,100,255));
 
@@ -426,18 +466,18 @@ namespace FirstStepMulti
                 //CvInvoke.FindContours(_imgCanny, contours, m, Emgu.CV.CvEnum.RetrType.External, Emgu.CV.CvEnum.ChainApproxMethod.ChainApproxSimple);
                 CvInvoke.FindContours(dilated, contours, m, Emgu.CV.CvEnum.RetrType.External, Emgu.CV.CvEnum.ChainApproxMethod.ChainApproxSimple);
 
-                for (int i = 0; i < contours.Size; i++)
-                {
+                //for (int i = 0; i < contours.Size; i++)
+                //{
 
-                    perimeter = CvInvoke.ArcLength(contours[i], true);
-                    if (perimeter > 150)
-                    {
-                        //CvInvoke.DrawContours(_imgCanny, contours, i, new MCvScalar(255, 255, 0), 5);
-                        //CvInvoke.DrawContours(ImgRoi, contours, i, new MCvScalar(255, 255, 0), 5);
+                //    perimeter = CvInvoke.ArcLength(contours[i], true);
+                //    if (perimeter > 150)
+                //    {
+                //        //CvInvoke.DrawContours(_imgCanny, contours, i, new MCvScalar(255, 255, 0), 5);
+                //        //CvInvoke.DrawContours(ImgRoi, contours, i, new MCvScalar(255, 255, 0), 5);
 
-                    }
+                //    }
 
-                }
+                //}
                 //dem = dem1 = max1 = max2 = max3 = 0;
                 dem = dem1 = max1 = max3 = 0;
 
@@ -446,28 +486,37 @@ namespace FirstStepMulti
                 {
                     for (int l = 0; l < _imgCanny.Height; l++)
                     {
-                        if (_imgCanny.Data[l, k, 0] == 255)
+                        if(k>=roi1.X && k<=roi1.X+roi1.Width && l >= roi1.Y && l <= roi1.Y + roi1.Height) 
                         {
-                            if (tesst)
+                            _imgCanny.Data[l, k, 0] = 0;
+                            continue;
+                        }
+                        else 
+                        {
+                            if (_imgCanny.Data[l, k, 0] == 255)
                             {
-                                toadoy[dem] = l;
-                                toadox[dem] = k;
-                                dem++;
-
-                            }
-                            else
-                            {
-                                if (toadoy[dem - 1] - l < 10)
+                                if (tesst)
                                 {
                                     toadoy[dem] = l;
                                     toadox[dem] = k;
                                     dem++;
-                                    break;
-                                }
-                            }
-                            tesst = false;
 
+                                }
+                                else
+                                {
+                                    if (toadoy[dem - 1] - l < 10)
+                                    {
+                                        toadoy[dem] = l;
+                                        toadox[dem] = k;
+                                        dem++;
+                                        break;
+                                    }
+                                }
+                                tesst = false;
+
+                            }
                         }
+                       
                     }
                 }
 
@@ -476,7 +525,7 @@ namespace FirstStepMulti
 
                     if (toadoy.Length > 0)
                     {
-                        min = toadoy.Where(num => num > 5).Min();
+                        min = toadoy.Where(num => num > 2).Min();
                         
 
                     }
@@ -549,7 +598,7 @@ namespace FirstStepMulti
                     if (min < roi.Height / 2 && Ref_Line == 0 && Get_max && min !=0)
                     {
                         plot++;
-                        if(plot >= 10) 
+                        if(plot >= 7) 
                         {
                             Ref_Line = toadoy.Where(num => Array.IndexOf(toadoy, num) > toadoy.Length - (toadoy.Length - 100) && Array.IndexOf(toadoy, num) < toadoy.Length - 100 && num != 0).Min();
                             //Ref_Line = min;
@@ -650,11 +699,13 @@ namespace FirstStepMulti
                                 if(groupWithMaxCount.Max()==0) groupWithMaxCount = filteredGroups.Where(group => group.Count < 700 && group.Count>10).OrderBy(group => group.Count).ElementAt(filteredGroups.Count-2);
                                 if (groupWithMaxCount != null)
                                 {
-                                    double targetAverage = groupWithMaxCount.Min();
+                                    //double targetAverage = filteredGroups.Where(group => group.Count < 700 && group.Count > 10).OrderBy(group => group.Count).FirstOrDefault()!=null? filteredGroups.Where(group => group.Count < 700 && group.Count > 10).OrderBy(group => group.Count).FirstOrDefault().Min() : 0;
                                     double targetAverage1 = groupWithMaxCount.Max();
-                                    double avg = (targetAverage + targetAverage1) / 2;
+                                    //double avg = (targetAverage + targetAverage1) / 2;
+                                    double avg = targetAverage1;
+
                                     //max3 = (int)targetAverage;
-                                    if((int)avg != 0) 
+                                    if ((int)avg != 0) 
                                     {
                                         max3 = (int)avg;
 
@@ -796,17 +847,18 @@ namespace FirstStepMulti
 
 
                     }
-                    else if (Ref_Line != 0 && max3 - Ref_Line <= 300 && max3 - Ref_Line >= iDCaculater.Water_Level_Target && Found_line && test_cam == false)
+                    else if (Ref_Line != 0 && max3 - Ref_Line <= 300 && Found_line && test_cam == false)
                     {
 
                         iDCaculater.Water_Level_Current = max3 - Ref_Line;
                         D260 = (Int16)iDCaculater.Possition_Output;
                         lastD260 = max3 - max1;
                         Write_D260 = true;
-                        if (max3 - Ref_Line == iDCaculater.Water_Level_Target && Ref_Line - min <= 3)
+
+                        if (Ref_Line - min >=15)
                         {
                             StopPID = true;
-                            CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, iDCaculater.Water_Level_Target,Ref_Line,"OK");
+                            CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, iDCaculater.Water_Level_Current, Ref_Line, "OK");
 
                             Found_line = false;
                             D260 = (Int16)iDCaculater.Position_Min;
@@ -817,6 +869,22 @@ namespace FirstStepMulti
                                 label2.Text = "0";
                             }; this.Invoke(method);
                         }
+
+                        //if (max3 - Ref_Line == iDCaculater.Water_Level_Target && Ref_Line - min <= 3)
+                        //{
+                        //    StopPID = true;
+                        //    CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, iDCaculater.Water_Level_Target,Ref_Line,"OK");
+
+                        //    Found_line = false;
+                        //    D260 = (Int16)iDCaculater.Position_Min;
+                        //    iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
+                        //    //find_line = false;
+                        //    MethodInvoker method1 = delegate
+                        //    {
+                        //        label2.Text = "0";
+                        //    }; this.Invoke(method);
+                        //}
+
                         //else if (max3 - Ref_Line <= iDCaculater.Water_Level_Target + 2 && max3 - Ref_Line > iDCaculater.Water_Level_Target && Ref_Line - min >= 5)
                         //{
                         //    StopPID = true;
@@ -831,35 +899,39 @@ namespace FirstStepMulti
                         //        label2.Text = "0";
                         //    }; this.Invoke(method);
                         //}
-                        else if(max3 - Ref_Line <= iDCaculater.Water_Level_Target + 15 && Ref_Line - min >= 10) 
-                        {
-                            StopPID = true;
-                            CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line, Ref_Line,"R-M>10");
-                            Found_line = false;
-                            D260 = (Int16)iDCaculater.Position_Min;
+                        //else if(max3 - Ref_Line <= iDCaculater.Water_Level_Target + 15 && Ref_Line - min >= 10) 
+                        //{
+                        //    StopPID = true;
+                        //    CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line, Ref_Line,"R-M>10");
+                        //    Found_line = false;
+                        //    D260 = (Int16)iDCaculater.Position_Min;
 
-                            iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
-                            //find_line = false;
-                            MethodInvoker method1 = delegate
-                            {
-                                label2.Text = "0";
-                            }; this.Invoke(method);
-                        }
-                        else if (max3 - Ref_Line <= iDCaculater.Water_Level_Target + 35 && Ref_Line - min >= 15)
-                        {
-                            StopPID = true;
-                            CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line, Ref_Line, "R-M>15");
-                            Found_line = false;
-                            D260 = (Int16)iDCaculater.Position_Min;
+                        //    iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
+                        //    //find_line = false;
+                        //    MethodInvoker method1 = delegate
+                        //    {
+                        //        label2.Text = "0";
+                        //    }; this.Invoke(method);
+                        //}
+                        //else if (max3 - Ref_Line <= iDCaculater.Water_Level_Target + 35 && Ref_Line - min >= 15)
+                        //{
+                        //    StopPID = true;
+                        //    CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line, Ref_Line, "R-M>15");
+                        //    Found_line = false;
+                        //    D260 = (Int16)iDCaculater.Position_Min;
 
-                            iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
-                            //find_line = false;
-                            MethodInvoker method1 = delegate
-                            {
-                                label2.Text = "0";
-                            }; this.Invoke(method);
+                        //    iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
+                        //    //find_line = false;
+                        //    MethodInvoker method1 = delegate
+                        //    {
+                        //        label2.Text = "0";
+                        //    }; this.Invoke(method);
+                        //}
+                        else 
+                        {
+                            MethodInvoker invoker = delegate { label2.Text = D260.ToString(); }; this.Invoke(invoker);
+
                         }
-                        MethodInvoker invoker = delegate { label2.Text = D260.ToString(); }; this.Invoke(invoker);
 
                     }
                     //else if (Ref_Line != 0 && max3 - Ref_Line <= 300 && max3 - Ref_Line <= iDCaculater.Water_Level_Target && Found_line && test_cam == false)
@@ -872,18 +944,18 @@ namespace FirstStepMulti
                     //    iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
 
                     //}
-                    else if (Ref_Line != 0 && max3 - Ref_Line <= 300 && Aprox && Ref_Line - min >= 10 && Found_line && test_cam == false)
-                    {
-                        StopPID = true;
-                        CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line, Ref_Line, "NG");
-                        Found_line = false;
-                        D260 = (Int16)iDCaculater.Position_Min;
-                        Write_D260 = true;
-                        iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
-                        Aprox = false;
-                        count_check = 0;
+                    //else if (Ref_Line != 0 && max3 - Ref_Line <= 300 && Aprox && Ref_Line - min >= 10 && Found_line && test_cam == false)
+                    //{
+                    //    StopPID = true;
+                    //    CapFinish(ImgInput.Bitmap, _imgCanny.Bitmap, max3 - Ref_Line, Ref_Line, "NG");
+                    //    Found_line = false;
+                    //    D260 = (Int16)iDCaculater.Position_Min;
+                    //    Write_D260 = true;
+                    //    iDCaculater.Water_Level_Current = iDCaculater.Water_Level_Max;
+                    //    Aprox = false;
+                    //    count_check = 0;
 
-                    }
+                    //}
 
                 }
             }
