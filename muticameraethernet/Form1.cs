@@ -399,8 +399,12 @@ namespace FirstStepMulti
 
                 Mat gray = new Mat();
                 CvInvoke.CvtColor(blurredImage, gray, ColorConversion.Bgr2Gray);
+
+                Mat median = new Mat();
+                CvInvoke.MedianBlur(blurredImage, median, 5);
+
                 Mat binary = new Mat();
-                CvInvoke.Threshold(gray, binary, 0, 50, ThresholdType.Binary | ThresholdType.Otsu);
+                CvInvoke.Threshold(median, binary, 0, 50, ThresholdType.Binary | ThresholdType.Otsu);
                 Mat edges = new Mat();
                 //Cv2.Canny(binary, edges, Convert.ToInt32(textBox3.Text), Convert.ToInt32(textBox4.Text));
                 CvInvoke.Canny(binary, edges, 0, 100);
@@ -411,64 +415,133 @@ namespace FirstStepMulti
                 //_imgCanny = ImgRoi.Canny(117, 244);
                 _imgCanny = dilated.ToImage<Gray, byte>();
 
-                //CvInvoke.FindContours(_imgCanny, contours, m, Emgu.CV.CvEnum.RetrType.External, Emgu.CV.CvEnum.ChainApproxMethod.ChainApproxSimple);
-                CvInvoke.FindContours(dilated, contours, m, Emgu.CV.CvEnum.RetrType.External, Emgu.CV.CvEnum.ChainApproxMethod.ChainApproxSimple);
-
-                for (int i = 0; i < contours.Size; i++)
+                if(Ref_Line == 0)
                 {
+                    CircleF[] circles = CvInvoke.HoughCircles(dilated, HoughType.Gradient, dp: 0.1, minDist: 50, param1: 50, param2: 23, minRadius: 260, maxRadius: 0);
+                    //dem = dem1 = max1 = max2 = max3 = 0;
+                    Mat blankImage = new Mat(new Size(dilated.Width, dilated.Height), DepthType.Cv8U, 3);
 
-                    perimeter = CvInvoke.ArcLength(contours[i], true);
-                    if (perimeter > 150)
+                    // Fill the image with black color
+                    blankImage.SetTo(new MCvScalar(0, 0, 0));
+                    if (circles != null)
                     {
-                        //CvInvoke.DrawContours(_imgCanny, contours, i, new MCvScalar(255, 255, 0), 5);
-                        //CvInvoke.DrawContours(ImgRoi, contours, i, new MCvScalar(255, 255, 0), 5);
+                        // Filter out semicircles based on y-coordinate
+                        var semicircles = Array.FindAll(circles, c => c.Center.Y > dilated.Height / 2);
 
-                    }
+                        // Find the point with the minimum Y-coordinate for each semicircle
+                        PointF[] minYPoints = Array.ConvertAll(semicircles, c => new PointF(c.Center.X, c.Center.Y));
 
-                }
-                //dem = dem1 = max1 = max2 = max3 = 0;
-                dem = dem1 = max1 = max3 = 0;
-
-                bool tesst = true;
-                for (int k = 0; k < _imgCanny.Width; k++)//backup _i
-                {
-                    for (int l = 0; l < _imgCanny.Height; l++)
-                    {
-                        if (_imgCanny.Data[l, k, 0] == 255)
+                        // Draw the detected semicircles and the point with minimum Y-coordinate
+                        foreach (CircleF circle in semicircles)
                         {
-                            if (tesst)
+                            CvInvoke.Circle(blankImage, Point.Round(circle.Center), (int)circle.Radius, new Bgr(Color.White).MCvScalar, 2);
+                        }
+
+                        for (int y = 0; y < blankImage.Height; y++)
+                        {
+                            for (int x = 0; x < blankImage.Width; x++)
                             {
-                                toadoy[dem] = l;
-                                toadox[dem] = k;
-                                dem++;
+                                if (blankImage.ToImage<Bgr, byte>().Data[y, x, 0] == 255)
+                                {
+                                    min = y;
+                                    goto Exit;
+                                }
+                            }
+                        }
+                        Exit:;
+                    }
+                    else 
+                    {
+                        bool tesst = true;
+                        for (int k = 0; k < _imgCanny.Width; k++)//backup _i
+                        {
+                            for (int l = 0; l < _imgCanny.Height; l++)
+                            {
+                                if (_imgCanny.Data[l, k, 0] == 255)
+                                {
+                                    if (tesst)
+                                    {
+                                        toadoy[dem] = l;
+                                        toadox[dem] = k;
+                                        dem++;
+
+                                    }
+                                    else
+                                    {
+                                        if (toadoy[dem - 1] - l < 10)
+                                        {
+                                            toadoy[dem] = l;
+                                            toadox[dem] = k;
+                                            dem++;
+                                            break;
+                                        }
+                                    }
+                                    tesst = false;
+
+                                }
+                            }
+                        }
+
+                        if (testmin == false)
+                        {
+
+                            if (toadoy.Length > 0)
+                            {
+                                min = toadoy.Where(num => num > 5).Min();
+
 
                             }
-                            else
+                        }
+                    }
+                }
+                else 
+                {
+                    bool tesst = true;
+                    for (int k = 0; k < _imgCanny.Width; k++)//backup _i
+                    {
+                        for (int l = 0; l < _imgCanny.Height; l++)
+                        {
+                            if (_imgCanny.Data[l, k, 0] == 255)
                             {
-                                if (toadoy[dem - 1] - l < 10)
+                                if (tesst)
                                 {
                                     toadoy[dem] = l;
                                     toadox[dem] = k;
                                     dem++;
-                                    break;
+
                                 }
+                                else
+                                {
+                                    if (toadoy[dem - 1] - l < 10)
+                                    {
+                                        toadoy[dem] = l;
+                                        toadox[dem] = k;
+                                        dem++;
+                                        break;
+                                    }
+                                }
+                                tesst = false;
+
                             }
-                            tesst = false;
+                        }
+                    }
+
+                    if (testmin == false)
+                    {
+
+                        if (toadoy.Length > 0)
+                        {
+                            min = toadoy.Where(num => num > 5).Min();
+
 
                         }
                     }
                 }
 
-                if (testmin == false)
-                {
+                
+                dem = dem1 = max1 = max3 = 0;
 
-                    if (toadoy.Length > 0)
-                    {
-                        min = toadoy.Where(num => num > 5).Min();
-                        
-
-                    }
-                }
+               
 
                 if (find_line)
                 {
@@ -537,10 +610,10 @@ namespace FirstStepMulti
                     if (min < roi.Height / 2 && Ref_Line == 0 && Get_max && min !=0)
                     {
                         plot++;
-                        if(plot >= 10) 
+                        if(plot >= 5) 
                         {
-                            Ref_Line = toadoy.Where(num => Array.IndexOf(toadoy, num) > toadoy.Length - (toadoy.Length - 100) && Array.IndexOf(toadoy, num) < toadoy.Length - 100 && num != 0).Min();
-                            //Ref_Line = min;
+                            //Ref_Line = toadoy.Where(num => Array.IndexOf(toadoy, num) > toadoy.Length - (toadoy.Length - 100) && Array.IndexOf(toadoy, num) < toadoy.Length - 100 && num != 0).Min();
+                            Ref_Line = min;
                             Get_max = false;
                             plot = 0;
                         }

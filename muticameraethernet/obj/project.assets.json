@@ -197,6 +197,104 @@
         }
       }
     },
+    ".NETFramework,Version=v4.8/win-arm64": {
+      "EasyModbusTCP/5.6.0": {
+        "type": "package",
+        "compile": {
+          "lib/net40/EasyModbus.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net40/EasyModbus.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "EmguCV/3.1.0.1": {
+        "type": "package",
+        "dependencies": {
+          "OpenTK": "1.1.2225",
+          "OpenTK.GLControl": "1.1.2225",
+          "ZedGraph": "5.1.5"
+        },
+        "compile": {
+          "lib/net30/Emgu.CV.UI.GL.dll": {
+            "related": ".xml"
+          },
+          "lib/net30/Emgu.CV.UI.dll": {
+            "related": ".GL.xml;.xml"
+          },
+          "lib/net30/Emgu.CV.World.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net30/Emgu.CV.UI.GL.dll": {
+            "related": ".xml"
+          },
+          "lib/net30/Emgu.CV.UI.dll": {
+            "related": ".GL.xml;.xml"
+          },
+          "lib/net30/Emgu.CV.World.dll": {
+            "related": ".xml"
+          }
+        },
+        "build": {
+          "build/EmguCV.props": {},
+          "build/EmguCV.targets": {}
+        }
+      },
+      "OpenTK/1.1.2225": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System",
+          "System.Drawing",
+          "System.Xml"
+        ],
+        "compile": {
+          "lib/net20/OpenTK.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net20/OpenTK.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "OpenTK.GLControl/1.1.2225": {
+        "type": "package",
+        "dependencies": {
+          "OpenTK": "1.1.2225"
+        },
+        "frameworkAssemblies": [
+          "System",
+          "System.Drawing",
+          "System.Windows.Forms",
+          "System.Xml"
+        ],
+        "compile": {
+          "lib/net20/OpenTK.GLControl.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net20/OpenTK.GLControl.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "ZedGraph/5.1.5": {
+        "type": "package",
+        "compile": {
+          "lib/ZedGraph.dll": {}
+        },
+        "runtime": {
+          "lib/ZedGraph.dll": {}
+        }
+      }
+    },
     ".NETFramework,Version=v4.8/win-x64": {
       "EasyModbusTCP/5.6.0": {
         "type": "package",
@@ -495,26 +593,23 @@
   },
   "packageFolders": {
     "C:\\Users\\quyth\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\DevExpress 21.2\\Components\\Offline Packages": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "\\\\192.168.1.100\\New folder\\muticameraethernet\\muticameraethernet\\muticameraethernet.csproj",
+      "projectUniqueName": "F:\\VISUAL PROJECT\\CSharp\\Github\\FillingCamera\\muticameraethernet\\muticameraethernet.csproj",
       "projectName": "muticameraethernet",
-      "projectPath": "\\\\192.168.1.100\\New folder\\muticameraethernet\\muticameraethernet\\muticameraethernet.csproj",
+      "projectPath": "F:\\VISUAL PROJECT\\CSharp\\Github\\FillingCamera\\muticameraethernet\\muticameraethernet.csproj",
       "packagesPath": "C:\\Users\\quyth\\.nuget\\packages\\",
-      "outputPath": "\\\\192.168.1.100\\New folder\\muticameraethernet\\muticameraethernet\\obj\\",
+      "outputPath": "F:\\VISUAL PROJECT\\CSharp\\Github\\FillingCamera\\muticameraethernet\\obj\\",
       "projectStyle": "PackageReference",
       "skipContentFileWrite": true,
       "fallbackFolders": [
-        "C:\\Program Files (x86)\\DevExpress 21.2\\Components\\Offline Packages",
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
         "C:\\Users\\quyth\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 21.2.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -522,7 +617,6 @@
         "net48"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\DevExpress 21.2\\Components\\System\\Components\\Packages": {},
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
@@ -548,6 +642,9 @@
     },
     "runtimes": {
       "win": {
+        "#import": []
+      },
+      "win-arm64": {
         "#import": []
       },
       "win-x64": {
